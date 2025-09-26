@@ -9,18 +9,19 @@ bash-sc
 About
 -----
 
-This is a small [GNU Bash](https://www.gnu.org/software/bash/)
-script which provides the capability to interactively search
-content on the filesystem with the help of the excellent underlying
-Unix utilities [fzf(1)](https://github.com/junegunn/fzf/),
-[rg(1)](https://github.com/BurntSushi/ripgrep), and
-[bat(1)](https://github.com/sharkdp/bat).
+**sc(1)** This is a small [GNU Bash](https://www.gnu.org/software/bash/)
+script which provides the capability to interactively search content on
+the filesystem. It fuzzy matches query strings both in file contents
+and file names. **sc(1)** internally is based on the excellent Unix
+utilities [fzf(1)](https://github.com/junegunn/fzf/) for dialog control,
+[rg(1)](https://github.com/BurntSushi/ripgrep) for content searching,
+and [bat(1)](https://github.com/sharkdp/bat) for content previewing.
 
 Usage
 -----
 
 ```
-sc <query>
+sc [<query>]
 ```
 
 License
