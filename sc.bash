@@ -85,8 +85,7 @@ elif [[ $cmd == "search" ]]; then
     #   sleep a short time for smoother display
     sleep 0.05
 
-    #   pass-through search to ripgrep and
-    #   perform post-processing for better readability
+    #   search file content
     rg \
         --with-filename \
         --line-number \
@@ -109,6 +108,8 @@ elif [[ $cmd == "search" ]]; then
             raw_line = line; gsub(/\x1B\[[0-9;]*[A-Za-z]/, "", raw_line); \
             printf "%s<1>%s<1>%s: %s: %s\n", raw_file, raw_line, file, line, text
         }'
+
+    #   search file names
     rg --files | \
         rg \
         --no-line-number \
