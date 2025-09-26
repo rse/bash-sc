@@ -20,9 +20,21 @@ and [bat(1)](https://github.com/sharkdp/bat) for content previewing.
 Usage
 -----
 
+Start the searching with...
+
 ```
 sc [<query>]
 ```
+
+...then enter a query from scratch or extend the query from the
+command-line. Use cursor keys up/down for selecting the files, press
+ENTER for editing the currently selected file in vim(1) and afterwards
+terminate **sc(1)**, CTRL-E for editing the currently selected file in
+vim(1) and afterwards return to the searching, or CTRL-O for editing
+the currently selected file in Visual Studio Code (via code(1)) and
+afterwards return to the searching. Alternatively, select more than one
+file with TAB and then use ENTER, CTRL-E or CTRL-O for editing all the
+currently selected files in vim(1) or Visual Studio Code.
 
 License
 -------
