@@ -63,14 +63,17 @@ elif [[ $cmd == "search" ]]; then
     q="$*"
 
     #   in case of an empty query, return empty result set
-    if [[ $q = "" ]]; then
+    if [[ $q == "" ]]; then
+        echo "(none)<1>(none)<1>(for help see preview)"
         exit 0
     fi
 
     #   convert query into a logical AND-based regular expression
     if [[ $q == *" "* ]]; then
         set -- $q
-        if [[ $# -eq 1 ]]; then
+        if [[ $# -eq 0 ]]; then
+            exit 0
+        elif [[ $# -eq 1 ]]; then
             q="$1"
         elif [[ $# -eq 2 ]]; then
             q="(?:$1.*$2|$2.*$1)"
@@ -143,13 +146,43 @@ elif [[ $cmd == "preview" ]]; then
     #   ==== PREVIEW ====
 
     #   get parameters
-    file="$1"
+    file=$(echo "$1" | sed -e 's;^ *;;' -e 's; *$;;')
     line="$2"
+
+    #   short-circuit no preview situation
+    if [[ "$file" == "" || "$file" == "(none)" ]]; then
+        echo ""
+        echo "Search Content"
+        echo "=============="
+        echo ""
+        echo "sc(1) is a small GNU Bash script which provides the capability to"
+        echo "interactively search content on the filesystem. It fuzzy matches query"
+        echo "strings both in file contents and file names. sc(1) internally is based"
+        echo "on the excellent Unix utilities fzf(1) for dialog control, rg(1) for"
+        echo "content searching, and bat(1) for content previewing."
+        echo ""
+        echo "Enter your query strings below. They are AND-wise combined, i.e. the"
+        echo "content has to match all of them in order to be displayed."
+        echo ""
+        echo "Use cursor keys up/down for selecting the files, press ENTER for editing"
+        echo "the currently selected file in vim(1) and afterwards terminate sc(1),"
+        echo "CTRL-E for editing the currently selected file in vim(1) and afterwards"
+        echo "return to the searching, or CTRL-O for editing the currently selected"
+        echo "file in Visual Studio Code (via code(1)) and afterwards return to the"
+        echo "searching."
+        echo ""
+        echo "Alternatively, select more than one file with TAB and then use ENTER,"
+        echo "CTRL-E or CTRL-O for editing all the currently selected files in vim(1)"
+        echo "or Visual Studio Code."
+        echo ""
+        echo "At any time, use CTRL-P to toggle the preview of the file."
+        echo "At any time, use CTRL-C or ESCAPE to exit the program."
+        exit 0
+    fi
 
     #   pass-through preview rendering to bat(1)
     exec bat \
         --style=full \
-        --theme=rse \
         --color=always \
         --highlight-line "$line" \
         "$file"
