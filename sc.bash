@@ -207,10 +207,10 @@ elif [[ $cmd == "open" ]]; then
     else
          if [[ $editor == "vim" ]]; then
              ensureTool vim
-             vim -O $(sed -e 's;:.*;;' <$files)
+             vim -O $(sed -e 's;<1>.*;;' <$files)
          elif [[ $editor == "vsc" ]]; then
              ensureTool code
-             while IFS=":" read -r file _ line _; do
+             while IFS="<1>" read -r file _ line _; do
                  line=$(echo "$line" | sed -e 's;^ *;;' -e 's; *$;;')
                  (code -g "$file:$line") </dev/null >/dev/null 2>&1 || true
              done <$files
