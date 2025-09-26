@@ -36,6 +36,7 @@ afterwards return to the searching. Alternatively, select more than one
 file with TAB and then use ENTER, CTRL-E or CTRL-O for editing all the
 currently selected files in vim(1) or Visual Studio Code.
 At any time, use CTRL-P to toggle the preview of the file.
+At any time, use CTRL-C or ESCAPE to exit the program.
 
 License
 -------
