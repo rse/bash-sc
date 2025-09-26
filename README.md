@@ -35,6 +35,7 @@ the currently selected file in Visual Studio Code (via code(1)) and
 afterwards return to the searching. Alternatively, select more than one
 file with TAB and then use ENTER, CTRL-E or CTRL-O for editing all the
 currently selected files in vim(1) or Visual Studio Code.
+At any time, use CTRL-P to toggle the preview of the file.
 
 License
 -------
