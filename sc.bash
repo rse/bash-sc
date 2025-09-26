@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+##
+##  sc.bash -- Search Content
+##  Copyright (c) 2025 Dr. Ralf S. Engelschall <rse@engelschall.com>
+##  Licensed under MIT license <https://spdx.org/licenses/MIT>
+##
+
+#   determine command
+cmd="main"
+if [[ $# -ge 1 ]]; then
+    case "$1" in
+        search  ) cmd="search";  shift ;;
+        preview ) cmd="preview"; shift ;;
+        open    ) cmd="open";    shift ;;
+        *       ) cmd="main"           ;;
+    esac
+fi
+
+#   helper function for ensuring a tool is available
+ensureTool () {
+    local tool="$1"
+    if ! which "$tool" >/dev/null 2>&1; then
+        echo "sc: ERROR: necessary tool \"$tool\" not found"
+        exit 1
+    fi
+}
+
+#   dispatch according to command
+if [[ $cmd == "main" ]]; then
+
+    #   ==== MAIN ====
+
+    #   ensure all necessary tools are available
+    for tool in fzf rg bat; do
+        ensureTool $tool
+    done
+
+    #   pass-through execution to fzf(1)
+    exec fzf \
+        --disabled \
+        --delimiter "<1>" \
+        --with-nth 3.. \
+        --ansi \
+        --color "light,bg:-1,fg:-1,hl:-1,bg+:15,fg+:0,hl+:1,gutter:-1,pointer:1,info:4,prompt:-1" \
+        --info "inline-right:matches: " \
+        --bind "start:reload:$0 search '{q}'" \
+        --bind "change:reload:$0 search '{q}'" \
+        --bind "enter:become:$0 open vim {+f} {1} {2}" \
+        --bind "ctrl-e:execute:$0 open vim {+f} {1} {2}" \
+        --bind "ctrl-o:execute:$0 open vsc {+f} {1} {2}" \
+        --bind "ctrl-k:kill-line" \
+        --bind "ctrl-p:toggle-preview" \
+        --preview "$0 preview {1} {2}" \
+        --preview-window '~4,+{2}+4/3,<80(up)' \
+        --multi \
+        --query "$*"
+
+elif [[ $cmd == "search" ]]; then
+
+    #   ==== SEARCH ====
+
+    #   gather query argument
+    q="$*"
+
+    #   in case of an empty query, return empty result set
+    if [[ $q = "" ]]; then
+        exit 0
+    fi
+
+    #   convert query into a logical AND-based regular expression
+    if [[ $q == *" "* ]]; then
+        set -- $q
+        if [[ $# -eq 1 ]]; then
+            q="$1"
+        elif [[ $# -eq 2 ]]; then
+            q="(?:$1.*$2|$2.*$1)"
+        elif [[ $# -eq 3 ]]; then
+            q="(?:$1.*$2.*$3|$1.*$3.*$2|$2.*$1.*$3|$2.*$3.*$1|$3.*$1.*$2|$3.*$2.*$1)"
+        else
+            echo "sc: ERROR: more than 3 search strings not supported"
+            exit 0
+        fi
+    fi
+
+    #   sleep a short time for smoother display
+    sleep 0.05
+
+    #   pass-through search to ripgrep and
+    #   perform post-processing for better readability
+    rg \
+        --with-filename \
+        --line-number \
+        --no-column \
+        --no-heading \
+        --field-match-separator "<2>" \
+        --color "always" \
+        --colors "path:fg:blue" \
+        --colors "line:fg:white" \
+        --colors "column:fg:white" \
+        --colors "match:fg:red" \
+        --colors "match:style:nobold" \
+        --smart-case \
+        "$q" | \
+        awk -F "<2>" '{
+            file = $1; \
+            line = $2; \
+            text = substr($0, index($0, $3)); \
+            raw_file = file; gsub(/\x1B\[[0-9;]*[A-Za-z]/, "", raw_file); \
+            raw_line = line; gsub(/\x1B\[[0-9;]*[A-Za-z]/, "", raw_line); \
+            printf "%s<1>%s<1>%s: %s: %s\n", raw_file, raw_line, file, line, text
+        }'
+
+elif [[ $cmd == "preview" ]]; then
+
+    #   ==== PREVIEW ====
+
+    #   get parameters
+    file="$1"
+    line="$2"
+
+    #   pass-through preview rendering to bat(1)
+    exec bat \
+        --style=full \
+        --theme=rse \
+        --color=always \
+        --highlight-line "$line" \
+        "$file"
+
+elif [[ $cmd == "open" ]]; then
+
+    #   ==== OPEN ====
+
+    #   get parameters
+    editor="$1"
+    files="$2"
+    file="$3"
+    line="$4"
+
+    #   dispatch according to selection mode of fzf(1)
+    if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
+         if [[ $editor == "vim" ]]; then
+             ensureTool vim
+             exec vim "$file" "+$line"
+         elif [[ $editor == "vsc" ]]; then
+             ensureTool code
+             exec code -g "$file:$line"
+         fi
+    else
+         if [[ $editor == "vim" ]]; then
+             ensureTool vim
+             vim -O $(sed -e 's;:.*;;' <$files)
+         elif [[ $editor == "vsc" ]]; then
+             ensureTool code
+             while IFS=":" read -r file _ line _; do
+                 line=$(echo "$line" | sed -e 's;^ *;;' -e 's; *$;;')
+                 (code -g "$file:$line") </dev/null >/dev/null 2>&1 || true
+             done <$files
+         fi
+    fi
+
+fi
+
