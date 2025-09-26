@@ -109,6 +109,33 @@ elif [[ $cmd == "search" ]]; then
             raw_line = line; gsub(/\x1B\[[0-9;]*[A-Za-z]/, "", raw_line); \
             printf "%s<1>%s<1>%s: %s: %s\n", raw_file, raw_line, file, line, text
         }'
+    rg --files | \
+        rg \
+        --no-line-number \
+        --no-column \
+        --no-heading \
+        --field-match-separator "<2>" \
+        --color "always" \
+        --colors "match:fg:red" \
+        --colors "match:style:nobold" \
+        --smart-case \
+        "$q" | \
+        awk -F "<2>" 'BEGIN {
+            red   = "\033[31m"
+            blue  = "\033[34m"
+            reset = "\033[0m"
+        } {
+            file = $1; \
+            line = 1; \
+            text = "[...]"; \
+            raw_file = file; gsub(/\x1B\[[0-9;]*[A-Za-z]/, "", raw_file); \
+            raw_line = line; gsub(/\x1B\[[0-9;]*[A-Za-z]/, "", raw_line); \
+            gsub(/^/, blue, file); \
+            gsub(/\x1B\[31m/, reset red, file); \
+            gsub(/\x1B\[0m/, reset blue, file); \
+            gsub(/$/, reset, file); \
+            printf "%s<1>%s<1>%s: %s: %s\n", raw_file, raw_line, file, line, text
+        }'
 
 elif [[ $cmd == "preview" ]]; then
 
