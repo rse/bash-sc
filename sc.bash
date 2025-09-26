@@ -35,6 +35,9 @@ if [[ $cmd == "main" ]]; then
         ensureTool $tool
     done
 
+    #   set the terminal title
+    (echo -e -n "\033]1;Search Content\007") 2>/dev/null || true
+
     #   pass-through execution to fzf(1)
     exec fzf \
         --disabled \
