@@ -45,7 +45,7 @@ if [[ $cmd == "main" ]]; then
         --info "inline-right:matches: " \
         --bind "start:reload:$0 search '{q}'" \
         --bind "change:reload:$0 search '{q}'" \
-        --bind "enter:become:$0 open vim {+f} {1} {2}" \
+        --bind "enter:execute:$0 open vim {+f} {1} {2}" \
         --bind "ctrl-e:execute:$0 open vim {+f} {1} {2}" \
         --bind "ctrl-o:execute:$0 open vsc {+f} {1} {2}" \
         --bind "ctrl-k:kill-line" \
@@ -164,12 +164,10 @@ elif [[ $cmd == "preview" ]]; then
         echo "Enter your query strings below. They are AND-wise combined, i.e. the"
         echo "content has to match all of them in order to be displayed."
         echo ""
-        echo "Use cursor keys up/down for selecting the files, press ENTER for editing"
-        echo "the currently selected file in vim(1) and afterwards terminate sc(1),"
-        echo "CTRL-E for editing the currently selected file in vim(1) and afterwards"
-        echo "return to the searching, or CTRL-O for editing the currently selected"
-        echo "file in Visual Studio Code (via code(1)) and afterwards return to the"
-        echo "searching."
+        echo "Use cursor keys up/down for selecting the files, press ENTER or CTRL-E"
+        echo "for editing the currently selected file in vim(1) and afterwards return"
+        echo "to sc(1), or CTRL-O for editing the currently selected file in Visual"
+        echo "Studio Code (via code(1)) and afterwards return to sc(1)."
         echo ""
         echo "Alternatively, select more than one file with TAB and then use ENTER,"
         echo "CTRL-E or CTRL-O for editing all the currently selected files in vim(1)"
