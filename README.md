@@ -4,6 +4,8 @@ bash-sc
 
 ### Search Content
 
+![bash-sc sample](screenshot.png)
+
 About
 -----
 
