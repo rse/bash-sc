@@ -63,25 +63,25 @@ elif [[ $cmd == "search" ]]; then
     #   ==== SEARCH ====
 
     #   gather query argument
-    q="$*"
+    query="$*"
 
     #   in case of an empty query, return empty result set
-    if [[ $q == "" ]]; then
+    if [[ $query == "" ]]; then
         echo "(none)<1>(none)<1>(for help see preview)"
         exit 0
     fi
 
     #   convert query into a logical AND-based regular expression
-    if [[ $q == *" "* ]]; then
-        set -- $q
+    if [[ $query == *" "* ]]; then
+        set -- $query
         if [[ $# -eq 0 ]]; then
             exit 0
         elif [[ $# -eq 1 ]]; then
-            q="$1"
+            query="$1"
         elif [[ $# -eq 2 ]]; then
-            q="(?:$1.*$2|$2.*$1)"
+            query="(?:$1.*$2|$2.*$1)"
         elif [[ $# -eq 3 ]]; then
-            q="(?:$1.*$2.*$3|$1.*$3.*$2|$2.*$1.*$3|$2.*$3.*$1|$3.*$1.*$2|$3.*$2.*$1)"
+            query="(?:$1.*$2.*$3|$1.*$3.*$2|$2.*$1.*$3|$2.*$3.*$1|$3.*$1.*$2|$3.*$2.*$1)"
         else
             echo "sc: ERROR: more than 3 search strings not supported"
             exit 0
@@ -105,7 +105,7 @@ elif [[ $cmd == "search" ]]; then
         --colors "match:fg:red" \
         --colors "match:style:nobold" \
         --smart-case \
-        "$q" | \
+        "$query" | \
         awk -F "<2>" '{
             file = $1; \
             line = $2; \
@@ -126,7 +126,7 @@ elif [[ $cmd == "search" ]]; then
         --colors "match:fg:red" \
         --colors "match:style:nobold" \
         --smart-case \
-        "$q" | \
+        "$query" | \
         awk -F "<2>" 'BEGIN {
             red   = "\033[31m"
             blue  = "\033[34m"
