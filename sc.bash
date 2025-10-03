@@ -198,25 +198,28 @@ elif [[ $cmd == "open" ]]; then
     file="$3"
     line="$4"
 
+    #   ensure editor tool is available
+    if [[ $editor == "vim" ]]; then
+        ensureTool vim
+    elif [[ $editor == "vsc" ]]; then
+        ensureTool code
+    fi
+
     #   dispatch according to selection mode of fzf(1)
     if [[ $FZF_SELECT_COUNT -eq 0 ]]; then
          if [[ $editor == "vim" ]]; then
-             ensureTool vim
              exec vim "$file" "+$line"
          elif [[ $editor == "vsc" ]]; then
-             ensureTool code
              exec code -g "$file:$line"
          fi
     else
          if [[ $editor == "vim" ]]; then
-             ensureTool vim
-             vim -O $(sed -e 's;<1>.*;;' <$files)
+             vim -O $(sed -e 's;<1>.*;;' <"$files")
          elif [[ $editor == "vsc" ]]; then
-             ensureTool code
              while IFS="<1>" read -r file _ line _; do
                  line=$(echo "$line" | sed -e 's;^ *;;' -e 's; *$;;')
                  (code -g "$file:$line") </dev/null >/dev/null 2>&1 || true
-             done <$files
+             done <"$files"
          fi
     fi
 
