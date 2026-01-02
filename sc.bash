@@ -198,6 +198,11 @@ elif [[ $cmd == "open" ]]; then
     file="$3"
     line="$4"
 
+    #   short-circuit processing no selection at all
+    if [[ "$file" == "" || "$file" == "(none)" ]]; then
+        exit 0
+    fi
+
     #   ensure editor tool is available
     if [[ $editor == "vim" ]]; then
         ensureTool vim
