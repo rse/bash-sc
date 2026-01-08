@@ -62,37 +62,27 @@ elif [[ $cmd == "search" ]]; then
 
     #   ==== SEARCH ====
 
-    #   gather query argument
-    query="$*"
-
     #   in case of an empty query, return empty result set
-    if [[ $query == "" ]]; then
+    if [[ "$*" == "" ]]; then
         echo "(none)<1>(none)<1>(for help see preview)"
         exit 0
     fi
 
     #   convert query into a logical AND-based regular expression
-    if [[ $query == *" "* ]]; then
-        set -- $query
-        if [[ $# -eq 0 ]]; then
-            exit 0
-        elif [[ $# -eq 1 ]]; then
-            query="$1"
-        elif [[ $# -eq 2 ]]; then
-            query="(?:$1.*$2|$2.*$1)"
-        elif [[ $# -eq 3 ]]; then
-            query="(?:$1.*$2.*$3|$1.*$3.*$2|$2.*$1.*$3|$2.*$3.*$1|$3.*$1.*$2|$3.*$2.*$1)"
-        else
-            echo "sc: ERROR: more than 3 search strings not supported"
-            exit 0
-        fi
+    if [[ $# -eq 0 ]]; then
+        exit 0
+    elif [[ $# -ge 1 ]]; then
+        query=""
+        for arg in "$@"; do
+            query="${query}(?=.*${arg}.*)"
+        done
     fi
 
     #   sleep a short time for smoother display
     sleep 0.05
 
     #   search file content
-    rg \
+    rg --pcre2 \
         --with-filename \
         --line-number \
         --no-column \
@@ -117,7 +107,7 @@ elif [[ $cmd == "search" ]]; then
 
     #   search file names
     rg --files | \
-        rg \
+        rg --pcre2 \
         --no-line-number \
         --no-column \
         --no-heading \
